@@ -1,8 +1,13 @@
 (function () {
   const storageKey = "yebin-blog-theme";
+  const siteVersion = "v0.2";
   const root = document.documentElement;
   const prefersDark = window.matchMedia("(prefers-color-scheme: dark)");
   const button = document.querySelector(".theme-toggle");
+
+  document.querySelectorAll(".site-footer .footer-inner span:last-child").forEach(function (versionLabel) {
+    versionLabel.textContent = siteVersion + " · 静态学习项目";
+  });
 
   function systemTheme() { return prefersDark.matches ? "dark" : "light"; }
   function applyTheme(theme) {

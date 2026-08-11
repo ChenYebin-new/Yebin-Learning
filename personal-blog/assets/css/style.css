@@ -85,6 +85,18 @@ h3 { margin: 0; font-size: 1.15rem; }
 .hidden { display: none !important; }
 .empty-state { padding: 2.5rem 1rem; border: 1px dashed var(--line); border-radius: .85rem; color: var(--muted); text-align: center; }
 .project-status { display: inline-flex; width: fit-content; margin-bottom: .85rem; padding: .16rem .6rem; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-size: .78rem; font-weight: 800; }
+.project-card { color: var(--text); cursor: pointer; }
+.project-card:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.project-card:hover .card-link { color: var(--accent-strong); }
+.project-detail-hero h1 { white-space: normal; }
+.project-kicker { margin: 0 0 .45rem; color: var(--accent); font-size: .92rem; font-weight: 750; }
+.project-summary-grid, .feature-grid, .project-shot-grid { display: grid; gap: 1.1rem; }
+.project-summary-grid { grid-template-columns: repeat(2, 1fr); }
+.feature-grid { grid-template-columns: repeat(4, 1fr); }
+.project-shot-grid { grid-template-columns: repeat(2, 1fr); }
+.project-shot { overflow: hidden; margin: 0; border: 1px solid var(--line); border-radius: .9rem; background: var(--surface); box-shadow: var(--shadow); }
+.project-shot img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; object-position: top; }
+.project-shot figcaption { padding: .85rem 1rem; color: var(--muted); font-size: .9rem; }
 .article { width: min(760px, calc(100% - 2rem)); margin: 0 auto; padding: 4rem 0 5rem; }
 .article-meta { color: var(--muted); font-size: .9rem; }
 .article h2 { margin-top: 2.2rem; font-size: 1.6rem; }
@@ -100,9 +112,14 @@ h3 { margin: 0; font-size: 1.15rem; }
   .header-inner { padding: .8rem 0; align-items: flex-start; flex-direction: column; }
   .site-nav { width: 100%; justify-content: space-between; }
   .site-nav a, .theme-toggle { padding: .35rem .45rem; font-size: .82rem; }
-  .hero-grid, .content-grid { grid-template-columns: 1fr; }
+  .hero-grid, .content-grid, .project-summary-grid, .project-shot-grid { grid-template-columns: 1fr; }
+  .feature-grid { grid-template-columns: repeat(2, 1fr); }
   .page-hero h1 { white-space: normal; }
   .avatar { margin: 0; }
   .card-grid { grid-template-columns: 1fr; }
   .section-heading, .footer-inner { align-items: flex-start; flex-direction: column; }
+}
+
+@media (max-width: 460px) {
+  .feature-grid { grid-template-columns: 1fr; }
 }
