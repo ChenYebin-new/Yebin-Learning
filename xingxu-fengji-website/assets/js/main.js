@@ -7,7 +7,13 @@ const products = {
     { src: 'assets/images/centrifugal-gallery-5.jpg', alt: '星旭风机标准离心式风机实拍' },
     { src: 'assets/images/centrifugal-gallery-6.jpg', alt: '星旭风机蓝色离心式风机实拍' }
   ] },
-  axial: { name: '轴流风机', scene: '车间送排风 · 局部通风', summary: '适用于空间送排风和局部通风需求，是工业场景中常见的通风设备方向。', features: ['适用于车间、仓储及局部通风场景', '便于围绕实际安装环境沟通产品方向', '具体型号、安装方式与参数待企业资料确认'] },
+  axial: { name: '轴流风机', scene: '车间送排风 · 局部通风', summary: '适用于空间送排风和局部通风需求，是工业场景中常见的通风设备方向。', features: ['适用于车间、仓储及局部通风场景', '便于围绕实际安装环境沟通产品方向', '具体型号、安装方式与参数待企业资料确认'], image: 'assets/images/axial-gallery-1.jpg', imageAlt: '星旭风机轴流风机实拍', gallery: [
+    { src: 'assets/images/axial-gallery-1.jpg', alt: '星旭风机轴流风机实拍一' },
+    { src: 'assets/images/axial-gallery-2.jpg', alt: '星旭风机轴流风机实拍二' },
+    { src: 'assets/images/axial-gallery-3.jpg', alt: '星旭风机轴流风机实拍三' },
+    { src: 'assets/images/axial-gallery-4.jpg', alt: '星旭风机轴流风机实拍四' },
+    { src: 'assets/images/axial-gallery-5.jpg', alt: '星旭风机轴流风机实拍五' }
+  ] },
   smoke: { name: '排烟风机', scene: '排烟通风 · 应急排风', summary: '面向排烟与应急排风等应用场景，具体产品配置需根据实际项目需求确认。', features: ['适用于排烟、应急排风等使用场景', '可先沟通项目环境与基本通风需求', '实际产品规格与适用条件待企业资料确认'] },
   dust: { name: '除尘风机', scene: '除尘净化 · 工艺排风', summary: '用于除尘净化及工艺排风等方向，帮助客户从实际生产环境出发了解设备需求。', features: ['适用于除尘净化及工艺排风方向', '可结合粉尘、管路与空间情况沟通选型', '具体使用条件与性能参数待企业资料确认'] }
 };
@@ -29,7 +35,12 @@ function renderProducts(mode = 'type') {
   const grid = document.querySelector('[data-product-grid]');
   if (!grid) return;
   const list = mode === 'scene' ? cardsByScene : cardsByType;
-  grid.innerHTML = list.map(([key, title, desc], index) => { const image = products[key].image ? `<img class="card-photo" src="${products[key].image}" alt="${products[key].imageAlt}">` : ''; const note = image ? '离心式风机实拍' : '产品实拍待补充'; return `<article class="product-card"><div class="card-visual">${image}<span>${String(index + 1).padStart(2, '0')}</span><small>${note}</small></div><div class="product-card-body"><p>${mode === 'scene' ? '应用场景' : '风机类型'}</p><h3>${title}</h3><span class="line"></span><p class="description">${desc}</p><a href="product.html?product=${key}">查看详情 <b>→</b></a></div></article>`; }).join('');
+  grid.innerHTML = list.map(([key, title, desc], index) => {
+    const product = products[key];
+    const image = product.image ? `<img class="card-photo" src="${product.image}" alt="${product.imageAlt}">` : '';
+    const note = product.image ? `${product.name}实拍` : '产品实拍待补充';
+    return `<article class="product-card"><a class="product-card-link" href="product.html?product=${key}" aria-label="查看${title}详情"><div class="card-visual">${image}<span>${String(index + 1).padStart(2, '0')}</span><small>${note}</small></div><div class="product-card-body"><p>${mode === 'scene' ? '应用场景' : '风机类型'}</p><h3>${title}</h3><span class="line"></span><p class="description">${desc}</p><span class="product-card-cta">查看详情 <b>→</b></span></div></a></article>`;
+  }).join('');
 }
 
 function initProductPage() {
@@ -50,7 +61,7 @@ function initProductPage() {
   }
   let galleryIndex = 0;
   const gallery = product.gallery;
-  imageSlot.innerHTML = `<button class="product-gallery" type="button" data-product-gallery aria-label="查看下一张离心风机图片"><span class="product-gallery-next"><img class="product-photo" src="${gallery[1].src}" alt=""></span><span class="product-gallery-main"><img class="product-photo" src="${gallery[0].src}" alt="${gallery[0].alt}"></span><span class="gallery-count" aria-live="polite">1 / ${gallery.length}</span><span class="gallery-next">点击查看下一张 <b>→</b></span></button>`;
+  imageSlot.innerHTML = `<button class="product-gallery" type="button" data-product-gallery aria-label="查看下一张${product.name}图片"><span class="product-gallery-next"><img class="product-photo" src="${gallery[1].src}" alt=""></span><span class="product-gallery-main"><img class="product-photo" src="${gallery[0].src}" alt="${gallery[0].alt}"></span><span class="gallery-count" aria-live="polite">1 / ${gallery.length}</span><span class="gallery-next">点击查看下一张 <b>→</b></span></button>`;
   const galleryButton = imageSlot.querySelector('[data-product-gallery]');
   const galleryImage = galleryButton.querySelector('.product-gallery-main img');
   const nextLayer = galleryButton.querySelector('.product-gallery-next');
