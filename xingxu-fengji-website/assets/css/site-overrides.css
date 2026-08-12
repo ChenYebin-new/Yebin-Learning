@@ -45,3 +45,42 @@
   margin: 22px auto 0;
   background: #fff;
 }
+
+.card-photo,
+.product-gallery .product-photo,
+.hero-gallery-photo {
+  opacity: 0;
+  transition: opacity .25s ease;
+}
+
+.card-photo.is-loaded,
+.product-gallery .product-photo.is-loaded,
+.hero-gallery-photo.is-loaded {
+  opacity: 1;
+}
+
+.card-visual.has-image-error::before,
+.product-gallery-main.has-image-error::before,
+.hero-gallery-main.has-image-error::before {
+  content: '图片暂时无法加载';
+  position: absolute;
+  z-index: 5;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: #142933;
+  color: #dbe5e8;
+  font-size: 13px;
+  text-align: center;
+}
+
+.hero-gallery-caption {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.hero-gallery-status {
+  color: #ffc08f;
+}
