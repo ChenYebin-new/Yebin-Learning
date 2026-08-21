@@ -3,7 +3,7 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=()
   X-Frame-Options: DENY
-  Content-Security-Policy: default-src 'self'; img-src 'self'; style-src 'self'; script-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'none'
+  Content-Security-Policy: default-src 'self'; img-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'none'
 
 /
   Cache-Control: public, max-age=0, must-revalidate
@@ -11,11 +11,11 @@
 /*.html
   Cache-Control: public, max-age=0, must-revalidate
 
-/assets/css/*
-  Cache-Control: public, max-age=0, must-revalidate
+/assets/css/styles.699b4566.css
+  Cache-Control: public, max-age=31536000, immutable
 
-/assets/js/*
-  Cache-Control: public, max-age=0, must-revalidate
+/assets/js/main.2ec7b461.js
+  Cache-Control: public, max-age=31536000, immutable
 
 /assets/images/optimized/*
   Cache-Control: public, max-age=31536000, immutable

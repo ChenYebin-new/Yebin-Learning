@@ -1,6 +1,13 @@
 const PRODUCT_IMAGE_SIZES = '(max-width: 650px) calc(100vw - 32px), (max-width: 900px) 44vw, 440px';
 const HERO_IMAGE_SIZES = '(max-width: 650px) calc(100vw - 72px), (max-width: 900px) 44vw, 500px';
 
+const productLinks = {
+  centrifugal: 'centrifugal-fan.html',
+  axial: 'axial-fan.html',
+  smoke: 'smoke-exhaust-fan.html',
+  dust: 'dust-removal-fan.html'
+};
+
 const products = {
   centrifugal: {
     name: '离心风机',
@@ -11,6 +18,7 @@ const products = {
     cardImage: 'assets/images/optimized/cards/centrifugal-card-v2.webp',
     cardWidth: 605,
     cardHeight: 800,
+    cardPosition: '35% 48%',
     imageAlt: '星旭风机离心式风机整机实拍',
     gallery: [
       galleryImage('centrifugal', 1, 1080, '星旭风机离心式风机整机实拍'),
@@ -30,6 +38,7 @@ const products = {
     cardImage: 'assets/images/optimized/cards/axial-card-v2.webp',
     cardWidth: 599,
     cardHeight: 800,
+    cardPosition: '50% 53%',
     imageAlt: '星旭风机轴流风机实拍',
     gallery: [
       galleryImage('axial', 1, 1080, '星旭风机轴流风机实拍一'),
@@ -78,6 +87,7 @@ function galleryImage(type, index, largeWidth, alt) {
 }
 
 function watchImage(image, container, onReady) {
+  if (!image) return;
   let handled = false;
   const ready = () => {
     if (handled) return;
@@ -103,6 +113,7 @@ function createResponsiveImage(item, className, decorative = false) {
   image.alt = decorative ? '' : item.alt;
   if (item.srcset) image.srcset = item.srcset;
   if (item.sizes) image.sizes = item.sizes;
+  if (item.objectPosition) image.style.objectPosition = item.objectPosition;
   image.src = item.src;
   return image;
 }
@@ -116,17 +127,19 @@ function preloadImage(item, className) {
   });
 }
 
+function productCardMarkup(key, title, description, mode, index) {
+  const product = products[key];
+  const visual = product.cardImage
+    ? `<div class="card-visual"><img class="card-photo" src="${product.cardImage}" alt="${product.imageAlt}" width="${product.cardWidth}" height="${product.cardHeight}" style="object-position:${product.cardPosition}" loading="lazy" decoding="async"><small>${product.name}实拍</small></div>`
+    : `<div class="card-visual card-visual-placeholder"><strong>${product.name}</strong><small>实拍资料待补充</small></div>`;
+  return `<article class="product-card"><a class="product-card-link" href="${productLinks[key]}" aria-label="查看${title}详情" data-analytics-event="product_open" data-analytics-location="product_card" data-product="${key}"><span class="card-index" aria-hidden="true">${String(index + 1).padStart(2, '0')}</span>${visual}<div class="product-card-body"><p>${mode === 'scene' ? '应用场景' : '风机类型'}</p><h3>${title}</h3><span class="line" aria-hidden="true"></span><p class="description">${description}</p><span class="product-card-cta">查看详情 <b aria-hidden="true">→</b></span></div></a></article>`;
+}
+
 function renderProducts(mode = 'type') {
   const grid = document.querySelector('[data-product-grid]');
   if (!grid) return;
   const list = mode === 'scene' ? cardsByScene : cardsByType;
-  grid.innerHTML = list.map(([key, title, description]) => {
-    const product = products[key];
-    const visual = product.cardImage
-      ? `<div class="card-visual"><img class="card-photo" src="${product.cardImage}" alt="${product.imageAlt}" width="${product.cardWidth}" height="${product.cardHeight}" loading="lazy" decoding="async"><small>${product.name}实拍</small></div>`
-      : `<div class="card-visual card-visual-placeholder"><strong>${product.name}</strong><small>实拍资料待补充</small></div>`;
-    return `<article class="product-card"><a class="product-card-link" href="product.html?product=${key}" aria-label="查看${title}详情">${visual}<div class="product-card-body"><p>${mode === 'scene' ? '应用场景' : '风机类型'}</p><h3>${title}</h3><span class="line" aria-hidden="true"></span><p class="description">${description}</p><span class="product-card-cta">查看详情 <b aria-hidden="true">→</b></span></div></a></article>`;
-  }).join('');
+  grid.innerHTML = list.map((item, index) => productCardMarkup(...item, mode, index)).join('');
   grid.querySelectorAll('.card-photo').forEach(image => watchImage(image, image.closest('.card-visual')));
 }
 
@@ -139,17 +152,20 @@ function initProductPage() {
   const name = document.querySelector('[data-product-name]');
   if (!name) return;
 
-  const requestedKey = new URLSearchParams(window.location.search).get('product');
-  if (requestedKey && !products[requestedKey]) {
+  const pageKey = document.body.dataset.productKey;
+  const queryKey = new URLSearchParams(window.location.search).get('product');
+  const requestedKey = pageKey || queryKey || 'centrifugal';
+  if (!products[requestedKey]) {
     document.querySelectorAll('[data-product-content]').forEach(element => { element.hidden = true; });
-    document.querySelector('[data-product-not-found]').hidden = false;
+    const notFound = document.querySelector('[data-product-not-found]');
+    if (notFound) notFound.hidden = false;
     document.title = '未找到产品｜星旭风机';
     setMeta('meta[name="description"]', '没有找到对应的星旭风机产品分类，请返回产品中心重新选择。');
     setMeta('meta[property="og:title"]', '未找到产品｜星旭风机');
     return;
   }
 
-  const product = products[requestedKey || 'centrifugal'];
+  const product = products[requestedKey];
   document.title = `${product.name}｜星旭风机`;
   setMeta('meta[name="description"]', product.metaDescription);
   setMeta('meta[property="og:title"]', `${product.name}｜星旭风机`);
@@ -167,7 +183,7 @@ function initProductPage() {
   }
 
   const first = product.gallery[0];
-  imageSlot.innerHTML = `<button class="product-gallery" type="button" data-product-gallery aria-label="查看下一张${product.name}图片" aria-busy="true"><span class="product-gallery-next" aria-hidden="true"></span><span class="product-gallery-main"><img class="product-photo" src="${first.src}" srcset="${first.srcset}" sizes="${first.sizes}" alt="${first.alt}" fetchpriority="high" decoding="async"></span><span class="gallery-count" aria-hidden="true">1 / ${product.gallery.length}</span><span class="gallery-next" aria-hidden="true"><span data-gallery-next-label>图片加载中</span><b>→</b></span><span class="sr-only" aria-live="polite" data-gallery-live>当前为第 1 张图片，共 ${product.gallery.length} 张</span></button>`;
+  imageSlot.innerHTML = `<button class="product-gallery" type="button" data-product-gallery aria-label="查看下一张${product.name}图片" aria-busy="true"><span class="product-gallery-next" aria-hidden="true"></span><span class="product-gallery-main"><img class="product-photo" src="${first.src}" srcset="${first.srcset}" sizes="${first.sizes}" alt="${first.alt}" fetchpriority="high" decoding="async"></span><span class="gallery-count" aria-hidden="true">1 / ${product.gallery.length}</span><span class="gallery-next" aria-hidden="true"><span data-gallery-next-label>图片加载中</span><b>→</b></span><span class="sr-only" aria-live="polite" data-gallery-live>当前为第 1 张${product.name}图片，共 ${product.gallery.length} 张</span></button>`;
   initStackGallery({
     button: imageSlot.querySelector('[data-product-gallery]'),
     items: product.gallery,
@@ -247,9 +263,13 @@ function initStackGallery({ button, items, mainSelector, nextSelector, imageClas
     fallbackTimer = window.setTimeout(finish, 380);
   };
 
-  const currentImage = mainLayer.querySelector('img');
-  watchImage(currentImage, mainLayer, queueNext);
+  watchImage(mainLayer.querySelector('img'), mainLayer, queueNext);
   button.addEventListener('click', promote);
+  button.addEventListener('keydown', event => {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    event.preventDefault();
+    promote();
+  });
 }
 
 function initWechatModal() {
@@ -259,6 +279,7 @@ function initWechatModal() {
   const qrImage = modal.querySelector('[data-qr-image]');
   const qrFrame = modal.querySelector('[data-qr-frame]');
   const qrStatus = modal.querySelector('[data-qr-status]');
+  const inertTargets = [...document.body.children].filter(element => element !== modal && element.tagName !== 'SCRIPT');
   let trigger = null;
   let qrRequested = false;
 
@@ -280,17 +301,19 @@ function initWechatModal() {
     qrImage.src = qrImage.dataset.src;
   };
 
+  const setPageInert = inert => inertTargets.forEach(element => { element.inert = inert; });
   const close = () => {
     if (modal.hidden) return;
     modal.hidden = true;
     document.body.classList.remove('modal-open');
-    trigger?.focus();
+    setPageInert(false);
+    if (trigger?.isConnected) trigger.focus();
   };
-
   const open = event => {
     trigger = event.currentTarget;
     modal.hidden = false;
     document.body.classList.add('modal-open');
+    setPageInert(true);
     loadQr();
     modal.querySelector('.modal-close').focus();
   };
@@ -309,13 +332,20 @@ function initWechatModal() {
   });
 }
 
+function heroImage(index, largeWidth, alt, objectPosition) {
+  const folder = 'assets/images/optimized/hero';
+  const small = `${folder}/storefront-gallery-${index}-720-v3.webp`;
+  const large = `${folder}/storefront-gallery-${index}-v2.webp`;
+  return { src: small, srcset: `${small} 720w, ${large} ${largeWidth}w`, sizes: HERO_IMAGE_SIZES, alt, objectPosition };
+}
+
 function initHeroGallery() {
   const button = document.querySelector('[data-hero-gallery]');
   if (!button) return;
   const items = [
-    heroImage(1, 1600, '星旭风机门店实景与店铺门头'),
-    heroImage(2, 1050, '星旭风机店内设备与货品陈列实拍'),
-    heroImage(3, 1050, '星旭风机店内面向门口的设备陈列实拍')
+    heroImage(1, 1600, '星旭风机门店实景与店铺门头', 'center 48%'),
+    heroImage(2, 1050, '星旭风机店内设备与货品陈列实拍', 'center 52%'),
+    heroImage(3, 1050, '星旭风机店内面向门口的设备陈列实拍', 'center 55%')
   ];
   initStackGallery({
     button,
@@ -332,17 +362,11 @@ function initHeroGallery() {
   });
 }
 
-function heroImage(index, largeWidth, alt) {
-  const folder = 'assets/images/optimized/hero';
-  const small = `${folder}/storefront-gallery-${index}-720-v3.webp`;
-  const large = `${folder}/storefront-gallery-${index}-v2.webp`;
-  return { src: small, srcset: `${small} 720w, ${large} ${largeWidth}w`, sizes: HERO_IMAGE_SIZES, alt };
-}
-
 function initMobileNavigation() {
   const toggle = document.querySelector('[data-menu-toggle]');
   const nav = document.querySelector('[data-nav]');
-  if (!toggle || !nav) return;
+  const header = document.querySelector('[data-header]');
+  if (!toggle || !nav || !header) return;
   const close = () => {
     toggle.setAttribute('aria-expanded', 'false');
     toggle.setAttribute('aria-label', '打开导航');
@@ -354,19 +378,55 @@ function initMobileNavigation() {
     toggle.setAttribute('aria-label', open ? '关闭导航' : '打开导航');
     nav.classList.toggle('open', open);
   });
-  nav.querySelectorAll('a').forEach(link => link.addEventListener('click', close));
-  document.addEventListener('keydown', event => { if (event.key === 'Escape' && nav.classList.contains('open')) { close(); toggle.focus(); } });
+  nav.querySelectorAll('a, button').forEach(control => control.addEventListener('click', close));
+  document.addEventListener('pointerdown', event => {
+    if (nav.classList.contains('open') && !header.contains(event.target)) close();
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && nav.classList.contains('open')) { close(); toggle.focus(); }
+  });
   window.addEventListener('resize', () => { if (window.innerWidth > 650) close(); });
 }
 
+function initScrollSpy() {
+  const links = [...document.querySelectorAll('.site-nav a[href^="#"]')];
+  if (!links.length || !('IntersectionObserver' in window)) return;
+  const ratios = new Map();
+  const linkById = new Map(links.map(link => [link.getAttribute('href').slice(1), link]));
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => ratios.set(entry.target.id, entry.isIntersecting ? entry.intersectionRatio : 0));
+    const active = [...ratios.entries()].sort((a, b) => b[1] - a[1])[0];
+    links.forEach(link => link.removeAttribute('aria-current'));
+    if (active?.[1] > 0) linkById.get(active[0])?.setAttribute('aria-current', 'location');
+  }, { rootMargin: '-24% 0px -58% 0px', threshold: [0, .2, .45, .7] });
+  linkById.forEach((_, id) => {
+    const section = document.getElementById(id);
+    if (section) { ratios.set(id, 0); observer.observe(section); }
+  });
+}
+
 function initProductFilters() {
-  document.querySelectorAll('[data-filter-mode]').forEach(button => button.addEventListener('click', () => {
-    document.querySelectorAll('[data-filter-mode]').forEach(item => {
+  const buttons = [...document.querySelectorAll('[data-filter-mode]')];
+  const grid = document.querySelector('[data-product-grid]');
+  const status = document.querySelector('[data-product-filter-status]');
+  if (!buttons.length || !grid) return;
+  let timer;
+  buttons.forEach(button => button.addEventListener('click', () => {
+    if (button.getAttribute('aria-pressed') === 'true') return;
+    buttons.forEach(item => {
       const active = item === button;
       item.classList.toggle('active', active);
       item.setAttribute('aria-pressed', String(active));
     });
-    renderProducts(button.dataset.filterMode);
+    const mode = button.dataset.filterMode;
+    clearTimeout(timer);
+    grid.classList.add('is-changing');
+    const delay = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 80;
+    timer = window.setTimeout(() => {
+      renderProducts(mode);
+      requestAnimationFrame(() => grid.classList.remove('is-changing'));
+      if (status) status.textContent = `已切换为${mode === 'scene' ? '按应用场景' : '按风机类型'}浏览，共 4 项`;
+    }, delay);
   }));
 }
 
@@ -376,6 +436,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initWechatModal();
   initHeroGallery();
   initMobileNavigation();
+  initScrollSpy();
   initProductFilters();
   document.querySelectorAll('[data-year]').forEach(element => { element.textContent = new Date().getFullYear(); });
 });
